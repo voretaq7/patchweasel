@@ -1,0 +1,101 @@
+.\"Modified from man(1) of FreeBSD, the NetBSD mdoc.template, and mdoc.samples.
+.\"See Also:
+.\"man mdoc.samples for a complete listing of options
+.\"man mdoc for the short list of editing options
+.\"/usr/share/misc/mdoc.template
+.Dd 10/10/2024               \" DATE
+.Dt patchweasel 1      \" Program name and manual section number
+.Sh NAME                 \" Section Header - required - don't modify
+.Nm patchweasel
+.\" The following lines are read in generating the apropos(man -k) database. Use only key
+.\" words here as the database is built based on the words here and in the .ND line.
+.\" Use .Nm macro to designate other names for the documented program.
+.Nd Deploy patches/changesets to a system
+.Sh SYNOPSIS             \" Section Header - required - don't modify
+.Nm
+.Op Fl fv              \" [-fv]
+.Op Fl D Ar Driver_Directory         \" [-D Driver Directory]
+.Op Fl d Ar Driver_Name 
+.Op Fl S Ar Script_Directory
+.Op Fl -version              \" [file]
+.Sh DESCRIPTION          \" Section Header - required - don't modify
+.Nm
+retrieves and deploys patches and changesets to a machine.
+The actual 
+.Nm
+program is a skeleton, relying on drivers, pre-patch scripts, and post-patch
+scripts in order to actually do its work.
+.Pp
+.Nm
+takes the following options
+.Bl -tag -width -indent  \" Differs from above in tag removed
+.It Fl f
+Forces patchweasel to continue past errors
+.It Fl v
+Verbose Mode
+.It Fl D Ar Driver_Directory
+Override the default or config file driver directory
+.It Fl d Ar Driver_Name
+Override the default or config file driver name
+.It Fl S Ar Script_Directory
+Override the default or config file script directory.
+.It Fl -version
+Display PatchWeasel version and exit
+.El                      \" Ends the list
+.Pp
+Note: The PatchWeasel script directory
+.Ar must
+contain a 
+.Pa pre
+and
+.Pa post
+directory.
+.Pp
+.Sh DRIVERS
+PatchWeasel drivers are shell scripts which implement four key functions:
+.Bl -tag -width -indent
+.It pw_driver_precmd()
+Runs prior to patching in order to prepare. Typical tasks inclue updating
+the pre-patch scripts.
+.It pw_driver_patch()
+This is the actual patching part of PatchWeasel.
+.It pw_driver_postcmd()
+Runs after patching as a clean-up or check phase.
+.It pw_driver_usage()
+Provides additional usage instructions particular to the driver, including
+environment variables, options, and flags that may be used.
+.El
+.Pp
+PatchWeasel drivers are sourced into the PatchWeasel script, and will inherit
+its environment.
+
+.Sh ENVIRONMENT      \" May not be needed
+.Bl -tag -width "ENV_VAR_1" -indent \" ENV_VAR_1 is width of the string ENV_VAR_1
+.It PW_DRIVER_DIR
+Directory to search for PatchWeasel Drivers
+.It PW_DRIVER_NAME
+PatchWeasel driver to use
+.It PW_SCRIPT_DIR
+Directory to search for patchWeasel Scripts. Must contain
+.Ar pre
+and
+.Ar post
+directories.
+.El
+.Sh FILES                \" File used or created by the topic of the man page
+.Bl -tag -width "/Users/joeuser/Library/really_long_file_name" -compact
+.It Pa /etc/patchweasel.conf
+.It Pa /usr/local/etc/patchwesel.conf
+PatchWeasel Configuration Files
+.It Pa /usr/local/libexec/patchweasel/drivers
+Default PatchWeasel Driver Location
+.It Pa /usr/local/libexec/patchweasel/scripts
+Default PatchWeasel Scripts Location
+.El                      \" Ends the list
+.Sh SEE ALSO
+.\" List links in ascending order by section, alphabetically within a section.
+.\" Please do not reference files that do not exist without filing a bug report
+.Xr find 1
+.Sh BUGS              \" Document known, unremedied bugs
+This shell version of PatchWeasel was adapted from the original Perl version
+as a clean-page rewrite. Regressions and unhandled edge cases may exist.

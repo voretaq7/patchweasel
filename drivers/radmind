@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# Patch Weasel Driver for radmind
+#
+# PatchWeasel 1.0.0
+# mikeg@bsd-box.net
+
+## Load driver options from PatchWeasel
+PW_DRIVER_host=${PW_DRIVER_host:-""}
+PW_DRIVER_checksum=${PW_DRIVER_checksum:-""}
+
+if [ "${PW_DRIVER_host}" != "" ]; then
+	PW_DRIVER_host="-h ${PW_DRIVER_host}"
+fi
+if [ "${PW_DRIVER_checksum}" != "" ]; then
+	PW_DRIVER_checksum="-c ${PW_DRIVER_checksum}"
+fi
+
+pw_driver_precmd() {
+	rc=0
+	pw_echo "PatchWeasel radmind driver Updating Pre-Commands."
+	ktcheck ${PW_DRIVER_checksum} ${PW_DRIVER_host}
+	rc=$?
+	if [ $rc -eq 0 ]; then
+		fsdiff -A ${PW_DRIVER_checksum} ${PW_SCRIPTDIR} | lapply ${PW_DRIVER_host}
+		rc=$?
+		if [ $rc -ne 0 ]; then
+			pw_error "PatchWeasel radmind precmd failed in fsdiff/lapply (${rc})!"
+			return $rc
+		fi
+	else
+		pw_error "PatchWeasel radmind precmd failed in ktcheck (${rc})!"
+		return $rc
+	fi
+	return 0
+}
+
+pw_driver_patch() {
+	fsdiff -A -c sha1 / | lapply
+}
+
+pw_driver_postcmd() {
+	return 0
+}
+
+pw_driver_usage() {
+	cat <<EOU
+	PatchWeasel radmind driver options:
+		--server <server>	Specify radmind server to use
+		--checksum <checksum>	Specify checksum algorithm to use
+
+EOU
+}

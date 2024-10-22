@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# Patch Weasel Driver for freebsd-update
+#
+# PatchWeasel 1.0.0
+# mikeg@bsd-box.net
+
+## Load driver options from PatchWeasel
+PW_DRIVER_upgrade=${PW_DRIVER_upgrade:-""}
+
+if [ "${PW_DRIVER_upgrade}" != "" ]; then
+	PW_DRIVER_checksum="-r ${PW_DRIVER_upgrade}"
+fi
+
+pw_driver_precmd() {
+	rc=0
+	pw_echo "PatchWeasel freebsd-update driver pre-commands"
+	if [ "${PW_DRIVER_upgrade}" != "" ]; then
+		pw_echo "  An Upgrade was called for."
+		freebsd-upgrade ${PW_DRIVER_upgrade} upgrade
+		rc=$?
+	else
+		pw_echo "  Fetching Updates"
+		freebsd-upgrade fetch
+		rc=$?
+	fi
+	if [ $rc -ne 0]; then
+		pw_error "PatchWeasel freebsd-update failed to fetch (${rc})!"
+		return $rc
+	fi
+	return 0
+}
+
+pw_driver_patch() {
+	freebsd-update install
+	rc=$?
+	if [ $rc -ne 0 ]; then 
+		if [ ${rc} -eq 2 ]; then
+			pw_echo "PatchWeasel freebsd-update: Nothing to install."
+		else
+			pw_error "PatchWeasel freebsd-update failed to install (${rc})!"
+		fi
+	fi
+	return $rc
+}
+
+pw_driver_postcmd() {
+	return 0
+}
+
+pw_driver_usage() {
+	cat <<EOU
+	PatchWeasel radmind driver options:
+		--upgrade <release>    Update to specified FreeBSD release
+
+EOU
+}

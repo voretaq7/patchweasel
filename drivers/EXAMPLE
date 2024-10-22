@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Patch Weasel Example Driver
+#
+# PatchWeasel 1.0.0
+# mikeg@bsd-box.net
+
+##
+## Provide additional usage instructions
+##
+pw_driver_usage() {
+	cat <<EOU
+
+EXAMPLE DRIVER OPTIONS
+	You are using the Example driver. This driver doesn't DO anything.
+EOU
+}
+
+##
+## Pre-Patching Commands for this driver
+## Note that pre-patch scripts are run in the main weasel,
+## This function should just "freshen" them as needed
+##
+pw_driver_precmd() {
+	pw_error "EXECUTING EXAMPLE DRIVER PRECMD"
+	return 0
+}
+
+##
+## The actual patching process for this driver
+##
+pw_driver_patch() {
+	pw_error "EXECUTING EXAMPLE DRIVER PATCH"
+}
+
+##
+## Post-Patching commands for this driver
+## Note that post-patch scripts are run in the main weasel,
+## This function should just "freshen" them as needed
+##
+pw_driver_postcmd() {
+	pw_error "EXECUTING EXAMPLE DRIVER POSTCMD"
+}
