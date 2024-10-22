@@ -8,7 +8,7 @@
 # mikeg@bsd-box.net 2024-10-10
 
 ## Set Version
-PW_VERSION="1.0.0"
+PW_VERSION="__PWVERSION__"
 
 ## Load configuration from /etc/patchweasel.conf 
 ## and/or /usr/local/etc/patchweasel.comf
