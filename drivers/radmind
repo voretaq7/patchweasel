@@ -21,22 +21,30 @@ pw_driver_precmd() {
 	pw_echo "PatchWeasel radmind driver Updating Pre-Commands."
 	ktcheck ${PW_DRIVER_checksum} ${PW_DRIVER_host}
 	rc=$?
-	if [ $rc -eq 0 ]; then
-		fsdiff -A ${PW_DRIVER_checksum} ${PW_SCRIPTDIR} | lapply ${PW_DRIVER_host}
-		rc=$?
-		if [ $rc -ne 0 ]; then
-			pw_error "PatchWeasel radmind precmd failed in fsdiff/lapply (${rc})!"
-			return $rc
-		fi
-	else
+	if [ $rc -gt 1 ]; then
 		pw_error "PatchWeasel radmind precmd failed in ktcheck (${rc})!"
 		return $rc
 	fi
+
+	if [ $rc -eq 1 ]; then
+		pw_echo "Patchweasel radmind - found transcript updates."
+	fi
+
+	pw_echo "Patchweasel radmind updating ${PW_SCRIPTDIR} contents"
+	pw_echo "fsdiff -A ${PW_DRIVER_checksum} ${PW_SCRIPTDIR} | lapply ${PW_DRIVER_host}"
+	fsdiff -A ${PW_DRIVER_checksum} ${PW_SCRIPTDIR} | lapply ${PW_DRIVER_host}
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		pw_error "PatchWeasel radmind precmd failed in fsdiff/lapply (${rc})!"
+		return $rc
+	fi
+
 	return 0
 }
 
 pw_driver_patch() {
-	fsdiff -A -c sha1 / | lapply
+	pw_echo "Patchweasel radmind applying differences."
+	fsdiff -A ${PW_DRIVER_checksum} / | lapply
 }
 
 pw_driver_postcmd() {
